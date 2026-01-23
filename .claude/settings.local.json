@@ -22,7 +22,12 @@
       "Skill(run-python:*)",
       "Bash(/Users/madhukarraj/personal/g-ai/venv/bin/python:*)",
       "Bash(git add:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(git checkout:*)",
+      "Bash(git push:*)",
+      "Bash(gh pr create:*)",
+      "Skill(commit-push)",
+      "Skill(commit-push:*)"
     ]
   }
 }
