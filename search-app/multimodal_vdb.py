@@ -13,22 +13,32 @@ from chromadb.utils.data_loaders import ImageLoader
 import pandas as pd
 
 
+# Default persistent storage path
+DEFAULT_PERSIST_DIR = os.path.join(os.path.dirname(__file__), ".chromadb")
+
+
 class MultimodalVectorDB:
     """A multimodal vector database using ChromaDB and OpenCLIP embeddings."""
 
-    def __init__(self, collection_name: str = "multimodal_embeddings_collection"):
+    def __init__(
+        self,
+        collection_name: str = "multimodal_embeddings_collection",
+        persist_directory: str = None,
+    ):
         """
         Initialize the multimodal vector database.
 
         Args:
             collection_name: Name of the ChromaDB collection
+            persist_directory: Path to persist ChromaDB data (default: .chromadb in script dir)
         """
         # Configure embedding model (ViT-B-32 CLIP variant)
         self.embedding_function = OpenCLIPEmbeddingFunction(model_name="ViT-B-32")
         self.data_loader = ImageLoader()
 
-        # Create ChromaDB client
-        self.client = chromadb.Client()
+        # Use persistent client to store data on disk
+        self.persist_directory = persist_directory or DEFAULT_PERSIST_DIR
+        self.client = chromadb.PersistentClient(path=self.persist_directory)
 
         # Create collection with cosine similarity
         self.collection = self.client.get_or_create_collection(
@@ -39,14 +49,35 @@ class MultimodalVectorDB:
         )
         self.collection_name = collection_name
 
-    def load_data(self, csv_path: str, images_folder: str) -> None:
+    def is_loaded(self) -> bool:
+        """Check if data has already been loaded into the collection."""
+        return self.collection.count() > 0
+
+    def load_data(self, csv_path: str, images_folder: str, force_reload: bool = False) -> None:
         """
         Load images and descriptions from CSV and image folder.
 
         Args:
             csv_path: Path to CSV file with Image ID and Description columns
             images_folder: Path to folder containing images
+            force_reload: If True, clear existing data and reload
         """
+        # Skip if data already loaded (unless force_reload)
+        if self.is_loaded() and not force_reload:
+            print(f"Data already loaded ({self.collection.count()} items). Skipping load.")
+            return
+
+        # Clear existing data if force reloading
+        if force_reload and self.is_loaded():
+            print("Force reload: clearing existing data...")
+            self.client.delete_collection(self.collection_name)
+            self.collection = self.client.get_or_create_collection(
+                name=self.collection_name,
+                embedding_function=self.embedding_function,
+                metadata={"hnsw:space": "cosine"},
+                data_loader=self.data_loader,
+            )
+
         # Load descriptions from CSV
         df = pd.read_csv(csv_path)
 
@@ -176,11 +207,12 @@ def main():
         print(f"Error: Images folder not found at {images_folder}")
         return
 
-    # Initialize vector database
+    # Initialize vector database (persistent storage)
     print("Initializing multimodal vector database...")
     vdb = MultimodalVectorDB()
+    print(f"Persistent storage: {vdb.persist_directory}")
 
-    # Load data
+    # Load data (skips if already loaded)
     print("\nLoading data...")
     vdb.load_data(csv_path, images_folder)
     print(f"Collection count: {vdb.get_collection_count()}")
