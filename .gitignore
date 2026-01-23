@@ -44,6 +44,9 @@ ENV/
 *.pkl
 *.h5
 
+# ChromaDB persistent storage
+.chromadb/
+
 # macOS
 .DS_Store
 .AppleDouble
