@@ -1,9 +1,23 @@
 {
   "permissions": {
     "allow": [
-      "Bash(ls:*)",
-      "Bash(git config:*)",
-      "Bash(ssh:*)"
+      "Bash(ls *)",
+      "Bash(git config *)",
+      "Bash(ssh *)",
+      "Bash(gh auth status *)",
+      "Bash(git merge *)",
+      "Bash(git commit *)",
+      "Bash(git checkout *)",
+      "Bash(source *)",
+      "Bash(pip install *)",
+      "Bash(/Users/madhukarraj/personal/g-ai/venv/bin/python -m pip install *)",
+      "Bash(git add *)",
+      "Bash(git push *)",
+      "Bash(brew install *)",
+      "Bash(gh pr create --title \"Add multimodal vector database with ChromaDB and OpenCLIP\" --body \"$\\(cat <<''EOF''\n## Summary\n- Add multimodal vector database using ChromaDB for persistent storage\n- Use OpenCLIP \\(ViT-B/32\\) embeddings for text and image queries\n- Support text-to-image and image-to-image similarity search\n\n## Changes\n- **New file:** `search-app/multimodal_vdb.py` - MultimodalVectorDB class\n- **Updated:** `search-app/requirements.txt` - Added chromadb, open-clip-torch, Pillow\n- **Updated:** `.gitignore` - Added .chromadb/ directory\n\n## Features\n- `query_by_text\\(\\)` - Search images using natural language\n- `query_by_image\\(\\)` - Find similar images\n- Persistent storage \\(data loads once, persists across runs\\)\n- `force_reload` option to refresh data\n\n## Test plan\n- [ ] Run `python search-app/multimodal_vdb.py` to verify queries work\n- [ ] Run script twice to verify data persistence \\(should skip loading on second run\\)\nEOF\n\\)\")",
+      "Bash(gh api *)",
+      "Bash(gh pr view *)",
+      "Bash(gh pr checks *)"
     ]
   }
 }
