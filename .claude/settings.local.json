@@ -21,7 +21,8 @@
       "Skill(run-python)",
       "Skill(run-python:*)",
       "Bash(/Users/madhukarraj/personal/g-ai/venv/bin/python:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
     ]
   }
 }
