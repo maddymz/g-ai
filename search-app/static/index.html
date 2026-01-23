@@ -1,0 +1,110 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Job Search & Image Search</title>
+    <style>
+      body { font-family: Arial, sans-serif; max-width: 900px; margin: 20px auto; padding: 0 20px; }
+      h1 { color: #333; }
+      h2 { color: #555; margin-top: 40px; border-bottom: 2px solid #ddd; padding-bottom: 10px; }
+      form { margin: 20px 0; }
+      input[type="text"], input[type="file"] { padding: 8px; margin-right: 10px; }
+      button { padding: 8px 16px; background: #007bff; color: white; border: none; cursor: pointer; border-radius: 4px; }
+      button:hover { background: #0056b3; }
+      #preview { margin: 20px 0; max-width: 400px; }
+      #preview img { max-width: 100%; border: 2px solid #ddd; border-radius: 4px; }
+      pre { background: #f5f5f5; padding: 15px; border-radius: 4px; overflow-x: auto; }
+      .results-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; margin: 20px 0; }
+      .result-item { border: 1px solid #ddd; border-radius: 4px; padding: 10px; text-align: center; }
+      .result-item img { max-width: 100%; height: 150px; object-fit: cover; border-radius: 4px; }
+      .result-item p { margin: 10px 0 0 0; font-size: 0.9em; color: #666; }
+    </style>
+  </head>
+  <body>
+    <h1>Search Portal</h1>
+    
+    <h2>Text-Based Job Search</h2>
+    <form id="searchForm">
+      <input id="query" type="text" placeholder="Enter search query" style="width:400px" />
+      <button type="submit">Search Jobs</button>
+    </form>
+    <pre id="results"></pre>
+
+    <h2>Image Search</h2>
+    <form id="imageSearchForm">
+      <input id="imageFile" type="file" accept="image/*" />
+      <button type="submit">Search Similar Images</button>
+    </form>
+    <div id="preview"></div>
+    <div id="imageResults"></div>
+
+    <script>
+      // Text search
+      const form = document.getElementById('searchForm');
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const query = document.getElementById('query').value;
+        const payload = { query, top_k: 5 };
+        const res = await fetch('/search', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+        const data = await res.json();
+        document.getElementById('results').textContent = JSON.stringify(data, null, 2);
+      });
+
+      // Image search
+      const imageForm = document.getElementById('imageSearchForm');
+      const imageFileInput = document.getElementById('imageFile');
+      const previewDiv = document.getElementById('preview');
+      const imageResultsDiv = document.getElementById('imageResults');
+
+      imageFileInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = (evt) => {
+            previewDiv.innerHTML = `<h3>Preview:</h3><img src="${evt.target.result}" alt="Preview" />`;
+          };
+          reader.readAsDataURL(file);
+        }
+      });
+
+      imageForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const file = imageFileInput.files[0];
+        if (!file) {
+          alert('Please select an image file');
+          return;
+        }
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        imageResultsDiv.innerHTML = '<p>Searching...</p>';
+        
+        try {
+          const res = await fetch('/image-search', { method: 'POST', body: formData });
+          const data = await res.json();
+          
+          if (data.results && data.results.length > 0) {
+            let html = '<h3>Similar Images:</h3><div class="results-grid">';
+            data.results.forEach((result, idx) => {
+              const filename = result.path.split('/').pop();
+              html += `
+                <div class="result-item">
+                  <p><strong>#${idx + 1}</strong></p>
+                  <p>${filename}</p>
+                  <p>Score: ${result.score.toFixed(4)}</p>
+                </div>
+              `;
+            });
+            html += '</div>';
+            imageResultsDiv.innerHTML = html;
+          } else {
+            imageResultsDiv.innerHTML = '<p>No results found.</p>';
+          }
+        } catch (error) {
+          imageResultsDiv.innerHTML = `<p style="color: red;">Error: ${error.message}</p>`;
+        }
+      });
+    </script>
+  </body>
+</html>
