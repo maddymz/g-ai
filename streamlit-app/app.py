@@ -8,7 +8,7 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain_openai import ChatOpenAI
 
 # Specify the filename of your local image
-image_filename = 'Educative.png'
+image_filename = 'banner.png'
 
 # Use st.image to display the image
 st.image(image_filename, use_container_width=True)
