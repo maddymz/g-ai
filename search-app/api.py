@@ -19,6 +19,13 @@ if base_dir not in sys.path:
 from job_search_bert import preprocess_text, generate_embedding, semantic_search, load_and_preprocess_dataset, load_embeddings
 # image search utilities
 from image_search import load_image_model, semantic_search as image_semantic_search, preprocess_image, generate_image_embedding
+# ChromaDB vector store
+from lc_search import initialize_chroma_store, search_documents
+from langchain_core.documents import Document
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
 
 
 app = FastAPI(title="Job Search API")
@@ -85,6 +92,17 @@ def startup_event():
         for fname in os.listdir(fixtures_images_dir):
             if fname.lower().endswith(('.jpg', '.jpeg', '.png')):
                 shutil.copy(os.path.join(fixtures_images_dir, fname), GALLERY_FOLDER)
+
+    # Initialize ChromaDB vector store
+    global chroma_vector_store
+    try:
+        chroma_vector_store = initialize_chroma_store(
+            persist_directory=os.path.join(base, '.chromadb')
+        )
+        print("ChromaDB vector store loaded successfully")
+    except Exception as e:
+        print(f"Warning: Could not initialize ChromaDB: {e}")
+        chroma_vector_store = None
 
 
 @app.post('/search')
@@ -167,6 +185,27 @@ def get_gallery():
                     'path': os.path.join(GALLERY_FOLDER, fname)
                 })
     return {'gallery_folder': GALLERY_FOLDER, 'count': len(images), 'images': images}
+
+
+class ChromaSearchRequest(BaseModel):
+    query: str
+    top_k: Optional[int] = 3
+
+
+@app.post('/chroma-search')
+def chroma_search(req: ChromaSearchRequest):
+    """Search documents using ChromaDB vector similarity."""
+    if chroma_vector_store is None:
+        raise HTTPException(status_code=503, detail='ChromaDB vector store not available')
+
+    if not req.query:
+        raise HTTPException(status_code=400, detail="Query is required")
+
+    try:
+        results = search_documents(chroma_vector_store, req.query, req.top_k)
+        return {'query': req.query, 'results': results}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Search failed: {str(e)}")
 
 
 if __name__ == '__main__':

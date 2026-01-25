@@ -38,6 +38,14 @@
     <div id="preview"></div>
     <div id="imageResults"></div>
 
+    <h2>ChromaDB Vector Search</h2>
+    <form id="chromaSearchForm">
+      <input id="chromaQuery" type="text" placeholder="Enter search query" style="width:400px" />
+      <input id="chromaTopK" type="number" placeholder="Top K" value="3" min="1" max="10" style="width:80px" />
+      <button type="submit">Search Documents</button>
+    </form>
+    <pre id="chromaResults"></pre>
+
     <script>
       // Text search
       const form = document.getElementById('searchForm');
@@ -79,11 +87,11 @@
         formData.append('file', file);
 
         imageResultsDiv.innerHTML = '<p>Searching...</p>';
-        
+
         try {
           const res = await fetch('/image-search', { method: 'POST', body: formData });
           const data = await res.json();
-          
+
           if (data.results && data.results.length > 0) {
             let html = '<h3>Similar Images:</h3><div class="results-grid">';
             data.results.forEach((result, idx) => {
@@ -103,6 +111,33 @@
           }
         } catch (error) {
           imageResultsDiv.innerHTML = `<p style="color: red;">Error: ${error.message}</p>`;
+        }
+      });
+
+      // ChromaDB search
+      const chromaForm = document.getElementById('chromaSearchForm');
+      chromaForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const query = document.getElementById('chromaQuery').value;
+        const topK = parseInt(document.getElementById('chromaTopK').value) || 3;
+
+        if (!query.trim()) {
+          alert('Please enter a search query');
+          return;
+        }
+
+        const payload = { query, top_k: topK };
+
+        try {
+          const res = await fetch('/chroma-search', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+          const data = await res.json();
+          document.getElementById('chromaResults').textContent = JSON.stringify(data, null, 2);
+        } catch (error) {
+          document.getElementById('chromaResults').textContent = `Error: ${error.message}`;
         }
       });
     </script>
