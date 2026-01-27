@@ -13,11 +13,15 @@ You are tasked with committing and pushing changes to the repository following t
    - First, switch to the main branch
    - Command: `git checkout main`
 
-2. **Pull latest changes**
+2. **Configure pull strategy**
+   - Set git to use merge strategy for pulls to avoid divergent branch issues
+   - Command: `git config pull.rebase false`
+
+3. **Pull latest changes**
    - Ensure main is up to date
    - Command: `git pull`
 
-3. **Create feature branch**
+4. **Create feature branch**
    - Create and checkout a new feature branch with a descriptive name
    - Use kebab-case naming based on change type:
      - `add-<feature-name>` for new features
@@ -26,21 +30,21 @@ You are tasked with committing and pushing changes to the repository following t
      - `refactor-<area>` for refactoring
    - Command: `git checkout -b <branch-name>`
 
-4. **Check git status**
+5. **Check git status**
    - Review what files have changed
    - Command: `git status`
 
-5. **Stage changes**
+6. **Stage changes**
    - Add files to staging area
    - Prefer adding specific files by name rather than `git add .` or `git add -A`
    - Never commit sensitive files (.env, credentials, API keys)
    - Command: `git add <specific-files>`
 
-6. **Review changes**
+7. **Review changes**
    - Show diff and recent commit messages to understand context
    - Commands: `git diff --staged` and `git log --oneline -5`
 
-7. **Create commit**
+8. **Create commit**
    - Draft a concise commit message following the repository's style
    - Include Co-Authored-By line
    - Command: Use heredoc format for multi-line messages
@@ -53,14 +57,14 @@ You are tasked with committing and pushing changes to the repository following t
    )"
    ```
 
-8. **Push feature branch to remote**
+9. **Push feature branch to remote**
    - Push the feature branch with upstream tracking
    - Command: `git push -u origin <branch-name>`
 
-9. **Create pull request**
-   - Create a PR using the gh CLI tool
-   - Use `gh pr create` with appropriate title and body
-   - Include summary, changes, and test plan in PR description
+10. **Create pull request**
+    - Create a PR using the gh CLI tool
+    - Use `gh pr create` with appropriate title and body
+    - Include summary, changes, and test plan in PR description
 
 ## Pull Request Format
 
