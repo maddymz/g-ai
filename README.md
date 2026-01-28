@@ -1,104 +1,86 @@
 # g-ai
 
-A semantic search engine powered by BERT with multi-modal extensions for searching jobs, images, audio, and video.
-
-## Features
-
-- **Job Search**: Semantic search over job descriptions using BERT embeddings
-- **Image Search**: Find images using natural language queries (CLIP) or visual similarity (ResNet-18)
-- **Audio Search**: Search audio files using mel spectrogram embeddings
-- **Video Search**: Text-to-video search using CLIP
+AI/ML learning and application project featuring BERT semantic search, multi-modal search, and CrewAI agents.
 
 ## Quick Start
 
 ```bash
-# Clone the repository
+# Clone and setup
 git clone https://github.com/maddymz/g-ai.git
 cd g-ai
-
-# Create and activate virtual environment
 python3 -m venv venv
 source venv/bin/activate
 
-# Install dependencies
+# For search app
 pip install -r search-app/requirements.txt
-pip install git+https://github.com/openai/CLIP.git
-
-# Run the web server
 cd search-app && uvicorn api:app --reload
-```
 
-Open http://localhost:8000 in your browser.
+# For CrewAI agents
+pip install -r agent/requirements.txt
+streamlit run agent/venue_finder_app.py
+```
 
 ## Project Structure
 
 ```
 g-ai/
-├── search-app/     # Main application (FastAPI + BERT/CLIP search)
-│   ├── api.py              # FastAPI server
-│   ├── job_search_bert.py  # BERT semantic search
-│   ├── clip_multimodal.py  # CLIP text-to-image/video
-│   ├── image_search.py     # ResNet-18 image embeddings
-│   ├── audio_search.py     # Audio spectrogram search
-│   └── static/index.html   # Web UI
-├── learning/       # Educational NLP/ML scripts
-├── scripts/        # Test data generation utilities
-└── fixtures/       # Sample test data (audio, images, videos)
+├── search-app/     # BERT/CLIP semantic search (jobs, images, audio, video)
+├── agent/          # CrewAI multi-agent applications
+├── learning/       # NLP/ML educational scripts (BERT, GPT, LangChain, CrewAI)
+└── scripts/        # Test data generation utilities
 ```
 
-## Architecture
+## Main Applications
 
-```
-Query → Text Preprocessing (NLTK) → BERT Embedding (768-dim) → Cosine Similarity → Ranked Results
-```
+### 1. Semantic Search Engine
+**Location:** `search-app/`
 
-### Models Used
-
-| Feature | Model | Embedding Dim |
-|---------|-------|---------------|
-| Job Search | bert-base-uncased | 768 |
-| Multi-modal | CLIP ViT-B/32 | 512 |
-| Image Search | ResNet-18 | 512 |
-| Audio Search | Mel Spectrogram | Custom |
-
-## Usage
-
-### Web Interface
+BERT-powered search for jobs, images, audio, and video using CLIP and ResNet-18.
 
 ```bash
 cd search-app && uvicorn api:app --reload
+# Open http://localhost:8000
 ```
 
-### CLI Job Search
+### 2. CrewAI Agents
+**Location:** `agent/`
 
+Multi-agent applications using CrewAI framework.
+
+**Venue Finder:** Find conference venues with AI agents
 ```bash
-python search-app/job_search_bert.py search-app/job_title_des.csv
+streamlit run agent/venue_finder_app.py
 ```
 
-### Learning Scripts
+### 3. Learning Examples
+**Location:** `learning/`
+
+NLP/ML examples including:
+- BERT, GPT-based chatbots
+- LangChain chains and tools
+- CrewAI conditional agents with AgentOps monitoring
+- Text processing (tokenization, embeddings, fine-tuning)
 
 ```bash
-# Chatbot example
+python learning/crewai-conditional-agents.py
 python learning/chatbot_basic.py
-
-# Self-attention visualization
-python learning/self-attention.py
 ```
 
-## Requirements
+## Key Technologies
 
-- Python 3.9+
-- PyTorch
-- Transformers (Hugging Face)
-- FastAPI
-- NLTK
-- OpenAI CLIP (for multi-modal search)
+- **Search**: BERT, CLIP, ResNet-18, FastAPI
+- **Agents**: CrewAI, LangChain, AgentOps
+- **ML/NLP**: PyTorch, Transformers, NLTK
 
 ## Environment Variables
 
-| Variable | Description |
-|----------|-------------|
-| `OPENAI_API_KEY` | Required for OpenAI-based scripts |
+Create `.env` file in project root:
+
+```env
+OPENAI_API_KEY=your_key
+TAVILY_API_KEY=your_key
+AGENTOPS_API_KEY=your_key
+```
 
 ## License
 
